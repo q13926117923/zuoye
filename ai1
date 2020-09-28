@@ -1,0 +1,168 @@
+# -- codingutf-8 --
+import numpy as np
+import sys
+
+sys.setrecursionlimit(10000000)
+
+
+class Block():
+    def __init__(self, num):
+        self.num = num
+        #self.arr = np.array([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 0, 15], [12, 14, 11, 10]])
+        self.arr = np.random.permutation(16).reshape(4,4)
+
+
+
+def finde_zero(arr):
+    for x in range(4):
+        for y in range(4):
+            if arr[x][y] == 0:
+                return x, y
+
+
+def Count(lst1, lst2, count):
+    i = 0
+    j = 0
+    res = []
+    while i < len(lst1) and j  < len(lst2):
+        if lst1[i] == lst2[j]:
+            res.append(lst1[i])
+            i += 1
+
+        else:
+            res.append(lst2[j])
+            count += len(lst1) - i  # 当右半部分的元素先于左半部分元素进入有序列表时，逆序对数量增加左半部分剩余的元素数
+            j += 1
+            res += lst1[i]
+            res += lst2[j]
+            return res, count
+
+def up(arr):
+    x, y = finde_zero(arr)
+    if x == 0:
+        return
+    arr[x - 1][y], arr[x][y] = arr[x][y], arr[x - 1][y]
+
+
+def down(arr):
+    x, y = finde_zero(arr)
+    if x == 3:
+        return
+    arr[x + 1][y], arr[x][y] = arr[x][y], arr[x + 1][y]
+
+
+def left(arr):
+    x, y = finde_zero(arr)
+    if y == 0:
+        return
+    arr[x][y - 1], arr[x][y] = arr[x][y], arr[x][y - 1]
+
+
+def right(arr):
+    x, y = finde_zero(arr)
+    if y == 3:
+        return
+    arr[x][y + 1], arr[x][y] = arr[x][y], arr[x][y + 1]
+
+
+fun_list = []
+fun_list.append(up)
+fun_list.append(down)
+fun_list.append(left)
+fun_list.append(right)
+
+# def DFS(block,fun_list)
+#     if str(block.arr.reshape(16)) in dict_hash or str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]]) in dict_hash
+#         return
+#     dict_hash.append(str(block.arr.reshape(16)))
+#     print(block.arr)
+#     if check(block)
+#         return
+#     for index in np.random.permutation(4)
+#         fun_list[index](block)
+#         DFS(block,fun_list)
+#     return
+# DFS(block,fun_list)
+
+
+
+def is_vaild(arr):
+    x, y = finde_zero(arr)
+    num = x
+
+    def InversePairs(data):
+        count = 0
+        copy = []
+        for i in data:
+            copy.append(i)
+        copy.sort()
+        for i in range(len(copy)):
+            count += data.index(copy[i])
+            data.remove(copy[i])
+        return count % 1000000007
+
+    tmp = list(arr.reshape(16))
+    tmp.remove(0)
+    cnt = InversePairs(tmp)
+    if cnt % 2 == 0 and num % 2 == 0:
+        return True
+    if cnt % 2 == 1 and num % 2 == 1:
+        return True
+    return False
+
+def bfs(mark):
+    while vec and mark == 0:
+        tmp = vec.pop(0)  # 抽出队头
+        path.append(str(tmp))
+        for index in range(4):
+            new_tmp = tmp.copy()  # 拷贝tmp矩阵
+            fun_list[index](new_tmp)  # 走一步
+            string = str(new_tmp)  # 转为字符串
+            if string == end:
+                mark = 1
+                print("finish")
+                print(string)
+                break
+            if string in path:  # 如果走过了就跳过
+                continue
+            else:  # 没走过就加入路径，加入队列
+                path.append(string)
+                vec.append(new_tmp)
+        print(tmp)
+
+def dfs(mark):
+    while vec and mark == 0:
+        tmp = vec.pop(-1)  # 抽出队尾
+        path.append(str(tmp))
+        for index in range(4):
+            new_tmp = tmp.copy()  # 拷贝tmp矩阵
+            fun_list[index](new_tmp)  # 走一步
+            string = str(new_tmp)  # 转为字符串
+            if string == end:
+                mark = 1
+                print("finish")
+                print(string)
+                break
+            if string in path:  # 如果走过了就跳过
+                continue
+            else:  # 没走过就加入路径，加入队列
+                path.append(string)
+                vec.append(new_tmp)
+        print(tmp)
+
+    #     if str(block.arr.reshape(16)) in dict_hash or str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]]) in dict_hash
+vec = []
+path = []  # 存放遍历过的矩阵
+end = str(np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]))
+def run():
+    block = Block(4)
+    puzzle = block.arr.copy()
+    mark = 0
+    if not is_vaild(puzzle):
+        print("这个矩阵buxing，重新运行")
+        mark = 1
+    else:
+        print("这个矩阵可以，继续运行")
+    vec.append(puzzle)
+    dfs(mark)
+run()

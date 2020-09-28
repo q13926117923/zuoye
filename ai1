@@ -8,8 +8,8 @@ sys.setrecursionlimit(10000000)
 class Block():
     def __init__(self, num):
         self.num = num
-        #self.arr = np.array([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 0, 15], [12, 14, 11, 10]])
-        self.arr = np.random.permutation(16).reshape(4,4)
+        self.arr = np.array([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 0, 15], [12, 14, 11, 10]])
+        #self.arr = np.random.permutation(16).reshape(4,4)
 
 
 
@@ -150,10 +150,11 @@ def dfs(mark):
                 vec.append(new_tmp)
         print(tmp)
 
-    #     if str(block.arr.reshape(16)) in dict_hash or str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]]) in dict_hash
+    #      str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]]) 
 vec = []
 path = []  # 存放遍历过的矩阵
 end = str(np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]))
+
 def run():
     block = Block(4)
     puzzle = block.arr.copy()
@@ -164,5 +165,5 @@ def run():
     else:
         print("这个矩阵可以，继续运行")
     vec.append(puzzle)
-    dfs(mark)
+    bfs(mark)
 run()

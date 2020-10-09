@@ -1,0 +1,246 @@
+import queue
+
+
+class Node1(object):  # 爬山和最佳优先搜索法
+
+    def __init__(self, name, val, pre):
+        self.name = name
+        self.val = val
+        self.vex_node = {}
+        self.vex_wg = {}
+        self.pre = pre
+
+    def setting(self, name, dis, val):
+        node = Node1(name, val, self.pre + dis)
+        x1 = {name: node}
+        x2 = {name: dis}
+        self.vex_node.update(x1)
+        self.vex_wg.update(x2)
+
+    # def __lt__(self, other):
+    #     return self.pre+self.val < other.pre+other.val
+
+    def __lt__(self, other):
+        return self.val < other.val
+
+    # def __lt__(self, other):
+    #     return self.pre < other.pre
+
+
+class Node2(object):  # A星和集束搜索法
+
+    def __init__(self, name, val, pre):
+        self.name = name
+        self.val = val
+        self.vex_node = {}
+        self.vex_wg = {}
+        self.pre = pre
+
+    def setting(self, name, dis, val):
+        node = Node2(name, val, self.pre + dis)
+        x1 = {name: node}
+        x2 = {name: dis}
+        self.vex_node.update(x1)
+        self.vex_wg.update(x2)
+
+    def __lt__(self, other):
+        return self.pre + self.val < other.pre + other.val
+
+    # def __lt__(self, other):
+    #     return self.val < other.val
+
+    # def __lt__(self, other):
+    #     return self.pre < other.pre
+
+
+class Node3(object):  # Branch_and_bound
+
+    def __init__(self, name, val, pre):
+        self.name = name
+        self.val = val
+        self.pre = pre
+        self.vex_node = {}
+        self.vex_wg = {}
+
+    def setting(self, name, dis, val):
+        node = Node3(name, val, self.pre + dis)
+        x1 = {name: node}
+        x2 = {name: dis}
+        self.vex_node.update(x1)
+        self.vex_wg.update(x2)
+
+    # def __lt__(self, other):
+    #     return self.pre+self.val < other.pre+other.val
+
+    # def __lt__(self, other):
+    #     return self.val < other.val
+
+    def __lt__(self, other):
+        return self.pre < other.pre
+
+
+node_list = ["B", "C", "D", "E", "F", "H", "I", "J", "G1", "K", "L", "M", "N", "G2"]
+dis_list = [4, 11, 15, 13, 4, 3, 12, 10, 18, 16, 6, 3, 1, 7]
+val_list = [14, 4, 9, 12, 1, 3, 21, 31, 0, 34, 21, 18, 8, 0]
+
+
+def init(num, node_list, dis_list, val_list):
+    queue = []
+    inter = 0
+    if num == 1 or num == 3:
+        root: Node1 = Node1("A", 18, 0)
+    else if num == 4:
+        root: Node2 = Node2("A", 18, 0)
+    else if num == 2 or num == 5:
+        root: Node2 = Node2("A", 18, 0)
+    else return
+    head = root
+    queue.append(root)
+    while queue and inter < len(dis_list):  # 由于题目是满二叉树，特殊处理
+        # 别的题目这样的初始化方式不适用！！！
+        root = queue.pop(0)
+        root.setting(node_list[inter], dis_list[inter], val_list[inter])
+        inter += 1
+        root.setting(node_list[inter], dis_list[inter], val_list[inter])
+        inter += 1
+        for val in root.vex_node.values():  # 遍历此节点的邻接结点放入队列
+            queue.append(val)
+    return head
+
+
+# ------------------------------------------------------------------------------------------
+# 以上是初始化
+
+def Clime(head):  # 爬山
+    print(head.name, end=" ")
+    if head.val == 0:
+        global Mark
+        Mark = 1  # 找到了全局变量Mark设置为1
+        return
+    que = queue.PriorityQueue()
+    for node in head.vex_node.values():
+        if node.val<head.val:
+            que.put(node)
+        else:
+            continue
+    for _ in range(que.qsize()):
+        root = que.get()
+        if Mark == 0:  # 未找到就深度搜索
+            Clime(root)
+    return
+
+
+def A_star(head):
+    que = queue.PriorityQueue()
+    que.put(head)
+    ans = []
+    while que:
+        root = que.get()
+        ans.append(root.name)
+        if root.val == 0:
+            print("找到了，路径为：")
+            print(ans)
+            return
+        for val in root.vex_node.values():
+            que.put(val)
+    print("找不到")
+    return
+
+
+def Best(head):  # 最佳优先搜索法
+    que = queue.PriorityQueue()
+    que.put(head)
+    ans = []
+    while not que.empty():
+        root = que.get()
+        ans.append(root.name)
+        if root.val == 0:
+            print("找到了，路径为：")
+            print(ans)
+            return
+        for val in root.vex_node.values():
+            que.put(val)
+    print("找不到")
+    return
+
+
+
+def Branch_and_bound(head):
+    que = queue.PriorityQueue()
+    que.put(head)
+    print("")
+    inp = int(input("设置一个定界值"))
+    ans = []
+    while not que.empty():
+        root = que.get()
+        ans.append(root.name)
+        if root.val == 0:
+            print("找到了，路径为：")
+            print(ans)
+            return
+        for node in root.vex_node.values():
+            if node.val+node.pre>inp:
+                print(node.name,"超过了定界值，丢弃")
+                continue
+            que.put(node)
+    print("找不到")
+    return
+
+def Beam_Search(head):  # 集束搜索法
+    que = []
+    que.append(head)
+    ans = []
+    while not que.empty():
+        root = que.pop(0)
+        ans.append(root.name)
+        if root.val == 0:
+            print("找到了，路径为：")
+            print(ans)
+            return
+        for val in root.vex_node.values():
+            if len(que) == 5:
+                if val > que[-1]:
+                    continue
+                else:
+                    print("拿出来的元素", que.pop(-1).name)
+
+            if not que or val > que[-1]:
+                que.append(val)
+            else:
+                for item in range(len(que)):
+                    if que[item] > val:
+                        que.insert(item, val)
+                        break
+    print("找不到")
+    return
+
+
+def brk(head):
+    print("end")
+    return
+
+
+func_list = []
+func_list.append(brk)
+func_list.append(Clime)
+func_list.append(Beam_Search)
+func_list.append(Best)
+func_list.append(Branch_and_bound)
+func_list.append(A_star)
+if __name__ == "__main__":
+    while True:  # 无限循环...
+        Mark = 0
+        print("0.结束")
+        print("1.Climb")
+        print("2.Beam_Search")
+        print("3.Best_search")
+        print("4.Branch_and_bound")
+        print("5.A_star")
+        inp = int(input("请输入数字得出以上算法的解"))
+        head = init(inp, node_list, dis_list, val_list)
+        func_list[inp](head)
+        print()
+        print("=============================================")
+        if inp == 0:
+            break
+

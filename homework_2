@@ -53,31 +53,6 @@ class Node2(object):  # A星和集束搜索法
     #     return self.pre < other.pre
 
 
-class Node3(object):  # Branch_and_bound
-
-    def __init__(self, name, val, pre):
-        self.name = name
-        self.val = val
-        self.pre = pre
-        self.vex_node = {}
-        self.vex_wg = {}
-
-    def setting(self, name, dis, val):
-        node = Node3(name, val, self.pre + dis)
-        x1 = {name: node}
-        x2 = {name: dis}
-        self.vex_node.update(x1)
-        self.vex_wg.update(x2)
-
-    # def __lt__(self, other):
-    #     return self.pre+self.val < other.pre+other.val
-
-    # def __lt__(self, other):
-    #     return self.val < other.val
-
-    def __lt__(self, other):
-        return self.pre < other.pre
-
 
 node_list = ["B", "C", "D", "E", "F", "H", "I", "J", "G1", "K", "L", "M", "N", "G2"]
 dis_list = [4, 11, 15, 13, 4, 3, 12, 10, 18, 16, 6, 3, 1, 7]
@@ -89,11 +64,10 @@ def init(num, node_list, dis_list, val_list):
     inter = 0
     if num == 1 or num == 3:
         root: Node1 = Node1("A", 18, 0)
-    else if num == 4:
+    elif num == 2 or num == 5 or num == 4:
         root: Node2 = Node2("A", 18, 0)
-    else if num == 2 or num == 5:
-        root: Node2 = Node2("A", 18, 0)
-    else return
+    else:
+        return
     head = root
     queue.append(root)
     while queue and inter < len(dis_list):  # 由于题目是满二叉树，特殊处理
@@ -187,30 +161,55 @@ def Branch_and_bound(head):
     return
 
 def Beam_Search(head):  # 集束搜索法
+    inp = int(input("设置一个集束值"))
     que = []
     que.append(head)
     ans = []
-    while not que.empty():
-        root = que.pop(0)
-        ans.append(root.name)
-        if root.val == 0:
-            print("找到了，路径为：")
-            print(ans)
-            return
-        for val in root.vex_node.values():
-            if len(que) == 5:
-                if val > que[-1]:
-                    continue
-                else:
-                    print("拿出来的元素", que.pop(-1).name)
+    # while len(que)!=0:
+    #     root = que.pop(0)
+    #     ans.append(root.name)
+    #     if root.val == 0:
+    #         print("找到了，路径为：")
+    #         print(ans)
+    #         return
+    #     for val in root.vex_node.values():
+    #         if len(que) == 5:
+    #             if val > que[-1]:
+    #                 continue
+    #             else:
+    #                 print("拿出来的元素", que.pop(-1).name)
 
-            if not que or val > que[-1]:
-                que.append(val)
-            else:
-                for item in range(len(que)):
-                    if que[item] > val:
-                        que.insert(item, val)
-                        break
+    #         if not que or val > que[-1]:
+    #             que.append(val)
+    #         else:
+    #             for item in range(len(que)):
+    #                 if que[item] > val:
+    #                     que.insert(item, val)
+    #                     break
+    while len(que)!=0:
+        temp = []
+        while len(que)!=0:
+            root = que.pop(0)
+            ans.append(root.name)
+            if root.val == 0:
+                print("找到了，路径为：")
+                print(ans)
+                return
+            for node in root.vex_node.values():
+                if len(temp) == inp:
+                    if node > max(temp):
+                        continue
+                    else:
+                        print("拿出来的元素", temp.pop(-1).name)
+
+                if len(temp)==0 or node > temp[-1]:
+                    temp.append(node)
+                else:
+                    for item in range(len(temp)):
+                        if temp[item] > node:
+                            temp.insert(item, node)
+                            break
+        que = temp
     print("找不到")
     return
 

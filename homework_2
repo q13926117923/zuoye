@@ -1,13 +1,12 @@
 import queue
 
-
-class Node1(object):  # 爬山和最佳优先搜索法
+class Node1(object):  # 以预估值的大小排序（爬山，最佳优先算法）
 
     def __init__(self, name, val, pre):
         self.name = name
         self.val = val
-        self.vex_node = {}
-        self.vex_wg = {}
+        self.vex_node = {} #存放相邻节点的字典 例如{"A":Obj(A)}
+        self.vex_wg = {} #存放相邻权重的字典{"A":12}
         self.pre = pre
 
     def setting(self, name, dis, val):
@@ -27,7 +26,7 @@ class Node1(object):  # 爬山和最佳优先搜索法
     #     return self.pre < other.pre
 
 
-class Node2(object):  # A星和集束搜索法
+class Node2(object):  # 以h(x)+g(x)的大小排序  
 
     def __init__(self, name, val, pre):
         self.name = name
@@ -86,22 +85,42 @@ def init(num, node_list, dis_list, val_list):
 # 以上是初始化
 
 def Clime(head):  # 爬山
-    print(head.name, end=" ")
-    if head.val == 0:
-        global Mark
-        Mark = 1  # 找到了全局变量Mark设置为1
-        return
-    que = queue.PriorityQueue()
-    for node in head.vex_node.values():
-        if node.val<head.val:
-            que.put(node)
+    # print(head.name, end=" ")
+    # if head.val == 0:
+    #     global Mark
+    #     Mark = 1  # 找到了全局变量Mark设置为1
+    #     print("爬山结束，已找到，完成")
+    #     return
+    # que = queue.PriorityQueue()
+    # for node in head.vex_node.values():
+    #     if node.val<head.val:
+    #         que.put(node)
+    #     else:
+    #         continue
+
+    # for _ in range(que.qsize()):
+    #     root = que.get()
+    #     if Mark == 0:  # 未找到就深度搜索
+    #         Clime(root)
+    # return
+    ans = []
+    while head:
+        ans.append(head.name)
+        min_node = Node1("x",100,100)
+        if head.vex_node:
+            for node in head.vex_node.values():
+                if node < min_node:
+                    min_node = node
+            head = min_node
         else:
-            continue
-    for _ in range(que.qsize()):
-        root = que.get()
-        if Mark == 0:  # 未找到就深度搜索
-            Clime(root)
-    return
+            head = None
+    if not head:
+        print("爬山找不到了，路径为：")
+    else:
+        print("爬山找不到，路径为：")
+    print(ans)
+    return  
+
 
 
 def A_star(head):
@@ -112,7 +131,7 @@ def A_star(head):
         root = que.get()
         ans.append(root.name)
         if root.val == 0:
-            print("找到了，路径为：")
+            print("A星算法找到了，路径为：")
             print(ans)
             return
         for val in root.vex_node.values():
@@ -129,7 +148,7 @@ def Best(head):  # 最佳优先搜索法
         root = que.get()
         ans.append(root.name)
         if root.val == 0:
-            print("找到了，路径为：")
+            print("最佳优先搜索算法找到了，路径为：")
             print(ans)
             return
         for val in root.vex_node.values():
@@ -149,7 +168,7 @@ def Branch_and_bound(head):
         root = que.get()
         ans.append(root.name)
         if root.val == 0:
-            print("找到了，路径为：")
+            print("分支定界算法找到了，路径为：")
             print(ans)
             return
         for node in root.vex_node.values():
@@ -157,7 +176,7 @@ def Branch_and_bound(head):
                 print(node.name,"超过了定界值，丢弃")
                 continue
             que.put(node)
-    print("找不到")
+    print("找不到，或许可以增加定界值重新尝试")
     return
 
 def Beam_Search(head):  # 集束搜索法
@@ -165,34 +184,13 @@ def Beam_Search(head):  # 集束搜索法
     que = []
     que.append(head)
     ans = []
-    # while len(que)!=0:
-    #     root = que.pop(0)
-    #     ans.append(root.name)
-    #     if root.val == 0:
-    #         print("找到了，路径为：")
-    #         print(ans)
-    #         return
-    #     for val in root.vex_node.values():
-    #         if len(que) == 5:
-    #             if val > que[-1]:
-    #                 continue
-    #             else:
-    #                 print("拿出来的元素", que.pop(-1).name)
-
-    #         if not que or val > que[-1]:
-    #             que.append(val)
-    #         else:
-    #             for item in range(len(que)):
-    #                 if que[item] > val:
-    #                     que.insert(item, val)
-    #                     break
     while len(que)!=0:
         temp = []
         while len(que)!=0:
             root = que.pop(0)
             ans.append(root.name)
             if root.val == 0:
-                print("找到了，路径为：")
+                print("集束搜索法找到了，路径为：")
                 print(ans)
                 return
             for node in root.vex_node.values():
@@ -210,14 +208,12 @@ def Beam_Search(head):  # 集束搜索法
                             temp.insert(item, node)
                             break
         que = temp
-    print("找不到")
+    print("集束搜索法找不到，或许可以重新集束值")
     return
-
 
 def brk(head):
     print("end")
     return
-
 
 func_list = []
 func_list.append(brk)
